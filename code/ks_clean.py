@@ -83,6 +83,15 @@ def convert_goal_manually(df):
 		df['converted_goal'] = df['converted_goal'].round(0).astype(int)
 	return df
 
+def convert_goal_manually_2(df):
+	'''
+	converts goal to USD value
+	This removes the try/except from above, because can't use manual USD rate earlier than october of 2017 data
+	'''
+	df['converted_goal'] = df['goal'] * df['static_usd_rate']
+	df['converted_goal'] = df['converted_goal'].round(0).astype(int)
+	return df
+
 
 def clean_creator(text):
 	'''
@@ -245,6 +254,21 @@ def clean_final_1_b(path):
 	clean_profile_col(df)
 	return convert_json_columns_b(df)
 
+def clean_final_1_c(path):
+	'''
+	this one is to remove any instance of "converted_pledged_amount", as it's not in datasets sep 2017 and earlier
+	'''
+	df = build_dataframe(path)
+	create_date_cols(df)
+	add_current_date(df, path)
+	creat_date_cols_2(df)
+	clean_days_in_field(df)
+	# calc_manual_conversion_rate(df)
+	convert_goal_manually_2(df)
+	clean_creator_col(df)
+	# clean_url_col(df)
+	clean_profile_col(df)
+	return convert_json_columns_b(df)
 
 ####PART 2
 
@@ -269,12 +293,30 @@ def update_state(df):
 	return df
 
 
+def update_state_2(df):
+	'''
+	changes state to "success" if pledged amount greater than goal/ Mainly updates "live" projects to success, and some cancelled ones, which is OK
+	Has to use "usd_pledged" because converted version isn't in sep 2017 and earlier
+	'''
+	df['state'] = df['state'].where((df['usd_pledged'] < df['converted_goal']), 'successful')
+	return df
+
+
 def calc_money_left(df):
 	'''
 	calculates how short of goal projects are. ignore unless live
 	'''
 	df['remaining_money_needed'] = df['converted_goal'] - df['converted_pledged_amount']
 	return df
+
+
+def calc_money_left_2(df):
+	'''
+	calculates how short of goal projects are. ignore unless live
+	'''
+	df['remaining_money_needed'] = df['converted_goal'] - df['usd_pledged']
+	return df
+
 
 def calc_money_left_per_day(df):
 	'''
@@ -289,6 +331,14 @@ def calc_money_gained_per_day(df):
 	'''
 	df['money_gained_per_day'] = df['converted_pledged_amount'] / df['days_in_field']
 	return df
+
+def calc_money_gained_per_day_2(df):
+	'''
+	calculates how much money project has gained per day on average
+	'''
+	df['money_gained_per_day'] = df['usd_pledged'] / df['days_in_field']
+	return df
+
 
 def divide_current_rate_by_remaining_rate(df):
 	'''
@@ -314,9 +364,41 @@ def drop_columns_b(df):
 def drop_columns_c(df):
 	'''
 	removing "static_usd_rate" from this list because I will need it to convert non-USD goals
+	removing some extras from those that are early 2018 or 2017 (file format changed)
 	'''
-	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls'])
+	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_chosen_currency', 'creator_is_registered', 'creator_urls', 'profile_background_color',
+       'profile_background_image_attributes',
+       'profile_background_image_opacity', 'profile_blurb',
+       'profile_feature_image_attributes', 'profile_link_text_color',
+       'profile_link_url', 'profile_name',
+       'profile_should_show_feature_image_section',
+       'profile_show_feature_image', 'profile_state_changed_at'])
 
+def drop_columns_d(df):
+	'''
+	removing "static_usd_rate" from this list because I will need it to convert non-USD goals
+	removing some extras from those that are mid to early 2017
+	'''
+	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_chosen_currency', 'creator_is_registered', 'creator_urls', 'profile_background_color',
+       'profile_background_image_attributes',
+       'profile_background_image_opacity', 'profile_blurb',
+       'profile_feature_image_attributes', 'profile_link_text_color',
+       'profile_link_url', 'profile_name',
+       'profile_should_show_feature_image_section',
+       'profile_show_feature_image', 'profile_state_changed_at'])
+
+def drop_columns_e(df):
+	'''
+	removing "static_usd_rate" from this list because I will need it to convert non-USD goals
+	removing some extras from those that are mid to early 2017
+	'''
+	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'deadline', 'disable_communication', 'friends', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_is_registered', 'creator_urls', 'profile_background_color',
+       'profile_background_image_attributes',
+       'profile_background_image_opacity', 'profile_blurb',
+       'profile_feature_image_attributes', 'profile_link_text_color',
+       'profile_link_url', 'profile_name',
+       'profile_should_show_feature_image_section',
+       'profile_show_feature_image', 'profile_state_changed_at'], errors='ignore')
 
 
 def clean_final_2(df):
@@ -346,6 +428,23 @@ def clean_final_2_c(df):
 	divide_current_rate_by_remaining_rate(df)
 	return drop_columns_c(df)
 
+def clean_final_2_d(df):
+	separate_main_cat(df)
+	update_state(df)
+	calc_money_left(df)
+	calc_money_left_per_day(df)
+	calc_money_gained_per_day(df)
+	divide_current_rate_by_remaining_rate(df)
+	return drop_columns_d(df)
+
+def clean_final_2_e(df):
+	separate_main_cat(df)
+	update_state_2(df)
+	calc_money_left_2(df)
+	calc_money_left_per_day(df)
+	calc_money_gained_per_day_2(df)
+	divide_current_rate_by_remaining_rate(df)
+	return drop_columns_e(df)
 
 ##Test to see if all can be done in one function
 ##For some reason, it throws an error at "separate_main_cat"
