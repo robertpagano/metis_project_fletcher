@@ -184,6 +184,41 @@ def convert_json_columns(df):
 	return df
 
 
+def convert_json_columns_b(df):
+	'''
+	converts columns with json data to separate columns, using original column name as prefix
+	### NOTE must be used after the previous cleaning functions
+	### NOTE that location column is still throwing errors - ignoring for now as probably don't need geographic data for analysis
+	'''
+	
+	#category column **WORKING - doesn't need preprocessing**
+	cat_df = df['category'].apply(json.loads)
+	cat_df = pd.DataFrame(cat_df.tolist()).add_prefix('category_')
+	df = pd.merge(df, cat_df, left_index=True, right_index=True, how='outer')
+	
+	#creator column **WORKING**
+	creator_df = df['creator_cleaned'].apply(json.loads)
+	creator_df = pd.DataFrame(creator_df.tolist()).add_prefix('creator_')
+	df = pd.merge(df, creator_df, left_index=True, right_index=True, how='outer')
+	
+#     #location column **NOT WORKING - I think it's due to null values, but this data isn't important**
+#     location_df = df['location_cleaned'].apply(json.loads)
+#     location_df = pd.DataFrame(location_df.tolist()).add_prefix('location_')
+#     df = pd.merge(df, location_df, left_index=True, right_index=True, how='outer')
+	
+	#profile column **WORKING**
+	profile_df = df['profile_cleaned'].apply(json.loads)
+	profile_df = pd.DataFrame(profile_df.tolist()).add_prefix('profile_')
+	df = pd.merge(df, profile_df, left_index=True, right_index=True, how='outer')
+	
+	# #urls column **WORKING (but need to clean a bit first like with creator)**
+	# urls_df = df['urls_cleaned'].apply(json.loads)
+	# urls_df = pd.DataFrame(urls_df.tolist()).add_prefix('urls_')
+	# df = pd.merge(df, urls_df, left_index=True, right_index=True, how='outer')
+	
+	return df
+
+
 def clean_final_1(path):
 	df = build_dataframe(path)
 	create_date_cols(df)
@@ -196,6 +231,19 @@ def clean_final_1(path):
 	clean_url_col(df)
 	clean_profile_col(df)
 	return convert_json_columns(df)
+
+def clean_final_1_b(path):
+	df = build_dataframe(path)
+	create_date_cols(df)
+	add_current_date(df, path)
+	creat_date_cols_2(df)
+	clean_days_in_field(df)
+	calc_manual_conversion_rate(df)
+	convert_goal_manually(df)
+	clean_creator_col(df)
+	# clean_url_col(df)
+	clean_profile_col(df)
+	return convert_json_columns_b(df)
 
 
 ####PART 2
@@ -256,6 +304,21 @@ def drop_columns(df):
 	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'source_url', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'urls_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'urls_message_creator', 'urls_rewards'])
 
 
+def drop_columns_b(df):
+	'''
+	removing "static_usd_rate" from this list because I will need it to convert non-USD goals
+	'''
+	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'urls_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'urls_message_creator', 'urls_rewards'])
+
+
+def drop_columns_c(df):
+	'''
+	removing "static_usd_rate" from this list because I will need it to convert non-USD goals
+	'''
+	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls'])
+
+
+
 def clean_final_2(df):
 	separate_main_cat(df)
 	update_state(df)
@@ -264,6 +327,24 @@ def clean_final_2(df):
 	calc_money_gained_per_day(df)
 	divide_current_rate_by_remaining_rate(df)
 	return drop_columns(df)
+
+def clean_final_2_b(df):
+	separate_main_cat(df)
+	update_state(df)
+	calc_money_left(df)
+	calc_money_left_per_day(df)
+	calc_money_gained_per_day(df)
+	divide_current_rate_by_remaining_rate(df)
+	return drop_columns_b(df)
+
+def clean_final_2_c(df):
+	separate_main_cat(df)
+	update_state(df)
+	calc_money_left(df)
+	calc_money_left_per_day(df)
+	calc_money_gained_per_day(df)
+	divide_current_rate_by_remaining_rate(df)
+	return drop_columns_c(df)
 
 
 ##Test to see if all can be done in one function
