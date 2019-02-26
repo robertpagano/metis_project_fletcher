@@ -367,12 +367,12 @@ def drop_columns_c(df):
 	removing some extras from those that are early 2018 or 2017 (file format changed)
 	'''
 	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'fx_rate', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_chosen_currency', 'creator_is_registered', 'creator_urls', 'profile_background_color',
-       'profile_background_image_attributes',
-       'profile_background_image_opacity', 'profile_blurb',
-       'profile_feature_image_attributes', 'profile_link_text_color',
-       'profile_link_url', 'profile_name',
-       'profile_should_show_feature_image_section',
-       'profile_show_feature_image', 'profile_state_changed_at'])
+	   'profile_background_image_attributes',
+	   'profile_background_image_opacity', 'profile_blurb',
+	   'profile_feature_image_attributes', 'profile_link_text_color',
+	   'profile_link_url', 'profile_name',
+	   'profile_should_show_feature_image_section',
+	   'profile_show_feature_image', 'profile_state_changed_at'], errors='ignore')
 
 def drop_columns_d(df):
 	'''
@@ -380,12 +380,12 @@ def drop_columns_d(df):
 	removing some extras from those that are mid to early 2017
 	'''
 	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'friends', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'usd_type', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_chosen_currency', 'creator_is_registered', 'creator_urls', 'profile_background_color',
-       'profile_background_image_attributes',
-       'profile_background_image_opacity', 'profile_blurb',
-       'profile_feature_image_attributes', 'profile_link_text_color',
-       'profile_link_url', 'profile_name',
-       'profile_should_show_feature_image_section',
-       'profile_show_feature_image', 'profile_state_changed_at'])
+	   'profile_background_image_attributes',
+	   'profile_background_image_opacity', 'profile_blurb',
+	   'profile_feature_image_attributes', 'profile_link_text_color',
+	   'profile_link_url', 'profile_name',
+	   'profile_should_show_feature_image_section',
+	   'profile_show_feature_image', 'profile_state_changed_at'])
 
 def drop_columns_e(df):
 	'''
@@ -393,12 +393,12 @@ def drop_columns_e(df):
 	removing some extras from those that are mid to early 2017
 	'''
 	return df.drop(columns=['index', 'category', 'created_at', 'creator', 'currency', 'currency_symbol', 'currency_trailing_code', 'deadline', 'disable_communication', 'friends', 'is_backing', 'is_starrable', 'is_starred', 'launched_at', 'location', 'permissions', 'photo', 'profile', 'spotlight', 'urls', 'creator_cleaned', 'profile_cleaned', 'category_color', 'category_parent_id', 'category_urls', 'source_url', 'creator_is_registered', 'creator_urls', 'profile_background_color',
-       'profile_background_image_attributes',
-       'profile_background_image_opacity', 'profile_blurb',
-       'profile_feature_image_attributes', 'profile_link_text_color',
-       'profile_link_url', 'profile_name',
-       'profile_should_show_feature_image_section',
-       'profile_show_feature_image', 'profile_state_changed_at'], errors='ignore')
+	   'profile_background_image_attributes',
+	   'profile_background_image_opacity', 'profile_blurb',
+	   'profile_feature_image_attributes', 'profile_link_text_color',
+	   'profile_link_url', 'profile_name',
+	   'profile_should_show_feature_image_section',
+	   'profile_show_feature_image', 'profile_state_changed_at'], errors='ignore')
 
 
 def clean_final_2(df):
@@ -444,7 +444,16 @@ def clean_final_2_e(df):
 	calc_money_left_per_day(df)
 	calc_money_gained_per_day_2(df)
 	divide_current_rate_by_remaining_rate(df)
-	return drop_columns_e(df)
+	return drop_columns_c(df)
+
+def clean_final_2_f(df):
+	# separate_main_cat(df)
+	update_state_2(df)
+	calc_money_left_2(df)
+	calc_money_left_per_day(df)
+	calc_money_gained_per_day_2(df)
+	divide_current_rate_by_remaining_rate(df)
+	return drop_columns_c(df)
 
 ##Test to see if all can be done in one function
 ##For some reason, it throws an error at "separate_main_cat"
