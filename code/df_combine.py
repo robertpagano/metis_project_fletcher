@@ -12,7 +12,7 @@ import pickle
 def unpkl(filename):
 	with open(f'/Users/robertpagano/metis_data/project_4/interim/{filename}.pickle', 'rb') as f:
 		df = pickle.load(f)
-	print('test3')
+	print('test4')
 	return df
 
 
@@ -25,22 +25,30 @@ def filter_out_live(df):
 	return df.loc[df['state'] != 'live']
 
 
-def append_df(df_nonlive_master, df):
+def filter_out_nonlive(df):
+	return df.loc[df['state'] == 'live']
+
+
+def append_df(df_master, df):
 	'''
-	'df_nonlive_master' is master file, 'df' is the new file i'm adding cases from
+	'df_master' is master file, 'df' is the new file i'm adding cases from
 	it also de-duplicates on id
 	'''
-	df_nonlive_master = pd.concat([df_nonlive_master, df], ignore_index=True, sort=False)
-	df_nonlive_master = df_nonlive_master.drop_duplicates(subset='id')
-	return df_nonlive_master
+	df_master = pd.concat([df_master, df], ignore_index=True, sort=False)
+	df_master = df_master.drop_duplicates(subset='id')
+	return df_master
 
 
-def append_new_live_from_filename(filename, df_nonlive_master):
+def append_non_live_from_filename(filename, df_master):
 	df = unpkl(filename)
 	df = drop_dups(df)
 	df = filter_out_live(df)
-	return append_df(df_nonlive_master, df)
+	return append_df(df_master, df)
 
+def append_live_from_filename(filename, df_master):
+	df = unpkl(filename)
+	df = filter_out_nonlive(df)
+	return append_df(df_master, df)
 
 
 ## So for non-live master, order is:
